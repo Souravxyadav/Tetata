@@ -1,0 +1,581 @@
+TOOLVERSE — COMPLETE PRODUCT REQUIREMENTS DOCUMENT (PRD) Version: 2.0
+Date: 2026-10-23 Project: ToolVerse — Static Online Tools Hub Hosting
+Target: InfinityFree Implementation: HTML5, CSS3, Vanilla JavaScript,
+JSON Document Type: Full Project Requirements and Acceptance
+Specification
+
+====================================================================== 1.
+PROJECT OVERVIEW
+======================================================================
+
+1.1 Vision ToolVerse is a responsive, mobile-first website that provides
+useful browser-based tools in one place. Visitors can discover tools,
+search and filter them, open each tool, and use it without creating an
+account. An admin area manages tool metadata, sections, and site
+settings through a transparent static-hosting workflow.
+
+1.2 Primary goals - Provide a fast, usable, accessible online tools
+directory. - Ensure every listed tool performs its stated function; no
+fake buttons or UI-only demos. - Maintain a consistent design system
+across public pages, tool pages, and admin pages. - Keep the tool
+registry and section/category references synchronized. - Allow tools to
+be added one at a time without breaking existing tools. - Make local
+draft, export, and deployment states explicit. - Provide understandable
+validation, errors, success messages, and recovery paths. - Deploy by
+uploading static files to InfinityFree. - Deliver maintainable source
+code and test documentation.
+
+1.3 Non-goals - No public accounts or server-side user profiles. - No
+server-side database or backend API. - No server-side file editing from
+browser JavaScript. - No claim of secure server-side admin
+authentication. - No simulated successful server uploads. - No mandatory
+build step, package installation, or compilation.
+
+======================================================================
+2. MANDATORY TECHNOLOGY AND HOSTING CONSTRAINTS
+======================================================================
+
+2.1 Allowed - HTML5 - CSS3 - Vanilla JavaScript (ES6+) - JSON files for
+static configuration and tool registry - Browser-native APIs - Existing
+lightweight client-side libraries only when essential, documented, and
+compatible with static hosting
+
+2.2 Prohibited - PHP - Node.js or server-side JavaScript - React, Vue,
+Angular, or other frontend frameworks - TypeScript build requirements -
+MySQL, PostgreSQL, or any database - Firebase or Supabase - Google Apps
+Script - External backend services - Mandatory npm, bundling,
+compilation, or development server
+
+2.3 Hosting - The project must run after static files are uploaded to
+InfinityFree. - The public root is commonly htdocs/. - The canonical
+public tool registry should be data/tools.json unless the inspected
+project defines another source of truth. - Never use localhost URLs or
+development-machine file paths. - Verify .htaccess behavior instead of
+assuming all directives are supported. - Document exact upload
+destinations, cache troubleshooting, smoke tests, and rollback. -
+Relative paths must work from root and nested pages.
+
+2.4 Browser support - Support current stable desktop and mobile
+browsers. - Feature-detect Canvas, File, Blob, URL.createObjectURL,
+Clipboard, and other APIs before use. - Show graceful messages if an API
+is unavailable. - Never silently fail when a required capability is
+missing.
+
+======================================================================
+3. PROJECT STRUCTURE AND SOURCE OF TRUTH
+======================================================================
+
+Inspect the actual supplied repository before editing. A representative
+structure may include: - index.html - contact.html - sitemap.html -
+admin/admin.html and justified supporting admin pages - assets/css/ -
+assets/js/ - components/header.html - components/footer.html -
+data/tools.json - tools/template/tool-template.html -
+tools/image/image-resizer.html - tools/ and nested tool directories -
+.htaccess - README.md - AUDIT-REPORT.md - QA-REPORT.md -
+DEPLOYMENT-GUIDE.md - CHANGELOG.md
+
+Do not create duplicate files just to match this example. Missing files
+must be reported accurately.
+
+3.1 Registry authority - Identify the actual authoritative registry. -
+Prefer data/tools.json for public tool metadata where consistent with
+existing architecture. - If assets/js/manifest.js contains fallback
+data, document its purpose and keep its schema and records consistent
+with the canonical registry. - Avoid independent registries that
+silently diverge. - Validate IDs, relative paths, required fields, and
+section references. - Do not invent records to inflate tool count.
+
+3.2 Tool registry record Each tool record should contain the fields
+required by the current project schema, such as: - id: unique stable
+identifier - name: human-readable title - description: concise, accurate
+description - category or section reference: must resolve to a real
+section - path: valid relative path to the actual tool HTML file - icon
+or visual identifier: if supported - tags: optional search terms if
+supported - status/visibility: only if supported by the current schema -
+metadata needed by the existing card and tool page
+
+Do not rename fields without updating every dependent script and data
+file.
+
+======================================================================
+4. PUBLIC WEBSITE REQUIREMENTS
+======================================================================
+
+4.1 Homepage - Clear brand/logo area. - Responsive header and
+navigation. - Accessible search input. - Category/section navigation or
+filters. - Responsive tool cards or another consistent listing. - Useful
+empty-results state. - Loading and error states when fetching the
+manifest. - Footer with valid links. - No admin-only controls in public
+navigation. - No unnecessary horizontal scrolling on mobile.
+
+4.2 Search - Search tool name, description, and tags where supported. -
+Ignore leading/trailing whitespace. - Match case-insensitively. -
+Combine search and category filters correctly. - Clearing the query must
+preserve other active filters. - Show accurate result counts where
+appropriate. - Show a helpful no-results message. - Never use fake or
+hardcoded search results.
+
+4.3 Sections/categories - Use the existing manifest model and exact
+IDs. - Search and section selection must combine correctly. - Reset
+filters restores the full listing. - Missing section references must be
+detected and reported. - Prevent a section from being deleted while
+tools still depend on it, unless those tools are reassigned first.
+
+4.4 Navigation and page behavior - All internal links must resolve. -
+Back/forward navigation should behave naturally. - Missing tool pages
+must show a useful error or be caught during validation. - Shared
+header/footer failure must not leave a blank, confusing region. -
+Contact links must be valid and must not claim to send mail unless a
+real sending service exists.
+
+======================================================================
+5. SHARED LAYOUT AND DYNAMIC PATH RESOLUTION
+======================================================================
+
+Audit assets/js/layout.js and
+components/header.html/components/footer.html.
+
+Requirements: - Resolve assets and links from root-level and nested
+pages. - Support examples such as /index.html, /contact.html,
+/admin/admin.html, /tools/template/tool-template.html, and nested tool
+pages. - Derive the root using a reliable strategy suitable for the
+actual deployment. Do not blindly count URL slashes. - Do not
+double-prefix paths. - Preserve query strings and fragments. - Do not
+rewrite external HTTPS URLs, mailto:, tel:, data:, or fragment-only
+links. - Check response.ok before using fetched components. - Provide
+visible fallback messages if component fetch fails. - Avoid duplicate
+event registration or repeated initialization. - Do not use
+document.write(). - Keep initialization order deterministic. - Document
+if deployment is supported only at the domain root; support subdirectory
+deployment only if explicitly required and tested.
+
+======================================================================
+6. TOOL TEMPLATE STANDARD
+======================================================================
+
+Inspect tools/template/tool-template.html if present. It must be a
+reusable starter, not a substitute for real functionality.
+
+Appropriate template elements: - Shared header/footer - Breadcrumbs -
+Tool title and accurate description - Labeled inputs - Main workspace -
+Primary action - Clear/reset action - Output area - Copy action when
+relevant - Inline validation feedback - Loading, empty, success, and
+error states - aria-live status region - Responsive layout - Correct
+root-aware paths - Safe DOM updates - Clipboard fallback/error handling
+
+A demo function must be clearly marked as demonstration code. Do not
+claim a template performs a real transformation unless that
+functionality is implemented. Copied templates must not contain
+duplicate IDs or unrelated metadata.
+
+======================================================================
+7. INDIVIDUAL TOOL DEVELOPMENT STANDARD
+======================================================================
+
+Every new or modified tool must include: - Complete HTML page - CSS
+embedded or external according to the project’s conventions - Vanilla
+JavaScript implementation - Valid manifest record - Correct section
+reference - Appropriate page title and meta description - Exact file
+path and integration instructions - Test checklist - Known limitations
+
+Functional requirements: - Implement the actual promised operation. -
+Validate empty, malformed, unsupported, and out-of-range inputs. -
+Handle boundary cases. - Display clear inline errors and success
+messages. - Keep responsive layouts. - Prevent accidental data loss. -
+Avoid unnecessary page reloads. - Use safe text insertion. - Handle
+unsupported browser APIs. - Clean up object URLs, timers, event
+listeners, and temporary resources. - Preserve working existing
+behavior. - Do not create placeholders just to increase tool count.
+
+If a library is essential, document its purpose, source/version,
+licensing considerations, and failure behavior. Do not claim offline
+operation if a required dependency is loaded from a remote CDN.
+
+======================================================================
+8. IMAGE RESIZER — DETAILED PRODUCT REQUIREMENTS
+======================================================================
+
+Tool name: Image Resizer Expected path in the current project:
+tools/image/image-resizer.html Purpose: Resize an image entirely in the
+user’s browser and export the resized result without uploading the image
+to a server.
+
+8.1 Upload and input - Support file picker upload. - Support
+drag-and-drop where implemented. - Accept common browser-decodable image
+formats. - Validate that a selected file is an image. - Handle
+corrupted, unsupported, or undecodable files gracefully. - Show a
+readable error when the file cannot be loaded. - Do not upload the image
+to any server. - Show the selected file name and original dimensions
+when available. - Release old object URLs when replacing or clearing an
+image.
+
+8.2 Preview - Show an original image preview. - Show a resized output
+preview after a successful resize. - Show original and output
+dimensions. - Show original and output file sizes where available. -
+Keep images contained within the layout without distorting the
+preview. - Distinguish the source image from the generated result. -
+Show an empty state before an image is selected.
+
+8.3 Dimensions and aspect ratio - Provide custom width and height inputs
+in pixels. - Validate positive integer dimensions. - Reject zero,
+negative, NaN, infinite, or impractically large dimensions. - Provide a
+lock/unlock aspect ratio control. - When locked, changing one dimension
+recalculates the other using the original image ratio. - When unlocked,
+permit independent dimensions and explain that output proportions may
+change. - Avoid unexpected resizing loops or input jitter. - Preserve
+original dimensions as a reset option. - Provide a reset dimensions
+action. - Recalculate output only when the user requests resizing or
+when the established UI behavior explicitly requires live preview.
+
+8.4 Output formats - Support PNG, JPEG/JPG, and WebP where the browser’s
+Canvas implementation supports the requested format. - Check the actual
+output MIME type returned by canvas.toBlob; do not assume the browser
+supports WebP merely because it was selected. - If a format is
+unsupported, display a clear error or offer a deliberate fallback. - Use
+correct file extensions matching the actual output MIME type. - Do not
+label a PNG output as WebP or JPEG. - Use a quality control for lossy
+formats such as JPEG and WebP. - Do not imply quality changes
+meaningfully affect lossless PNG. - For JPEG, provide a configurable
+background color because JPEG does not preserve transparency. -
+Composite transparent source images against the chosen background when
+exporting to JPEG. - Preserve transparency for PNG and supported WebP
+output. - Do not mutate the original file.
+
+8.5 Resize processing - Decode the source image safely. - Check that
+Canvas and a 2D context are available. - Guard against excessive
+dimensions and canvas allocation failures. - Draw at the requested
+dimensions. - Use canvas.toBlob where available to avoid unnecessary
+large base64 strings. - Handle null blobs and asynchronous errors. -
+Provide a visible processing state if operations take noticeable time. -
+Disable conflicting actions while processing where needed. - Clean up
+temporary canvas/object URLs at the correct time. - Do not revoke a
+download URL before the browser has had a reasonable opportunity to
+start the download.
+
+8.6 Download - Provide a clear Download Image action. - Use a meaningful
+filename derived from the source filename, such as
+name-resized-800x600.webp. - Ensure the extension matches the output
+format. - Do not report a successful download if image generation
+failed. - Handle unsupported download behavior with a helpful message. -
+Keep all processing local to the browser.
+
+8.7 Accessibility and responsive design - All fields must have labels. -
+Aspect ratio state must be understandable to screen readers. - Status
+and error messages should use an appropriate aria-live region. -
+Keyboard operation must be supported. - Visible focus styles are
+required. - Buttons must have clear names. - The layout must work on
+narrow mobile screens and desktop. - No essential action may be
+available only on hover.
+
+8.8 Image Resizer acceptance tests - Upload a valid PNG and resize it. -
+Upload a valid JPEG and resize it. - Upload WebP if supported by the
+browser. - Reject a non-image file. - Handle a corrupted image. - Change
+width with ratio locked and verify height updates. - Unlock ratio and
+independently change width/height. - Reject invalid dimensions. - Export
+PNG and verify output type. - Export JPEG with transparent input and
+confirm background fill. - Export WebP and verify actual output MIME
+type. - Test quality control for lossy formats. - Replace an image
+repeatedly without leaking old object URLs. - Clear and reset the
+tool. - Test a large image and confirm a graceful error if the browser
+cannot allocate the canvas. - Test keyboard accessibility and mobile
+layout. - Verify no image data is sent to a server.
+
+Do not claim these tests passed unless they were actually run.
+
+======================================================================
+9. ADMIN PANEL REQUIREMENTS
+======================================================================
+
+Redesign the admin area using the same design system. Core workflows
+must not depend on popup dialogs.
+
+Suggested pages: - Dashboard - Manage Tools - Add/Edit Tool - Manage
+Sections - Import/Export - Publish Changes - Site Settings -
+Backup/Restore - Diagnostics/Help
+
+Create extra pages only where they improve the workflow. Every
+navigation destination must exist.
+
+9.1 Dashboard - Counts must be calculated from real manifest data. -
+Show pending local changes and manifest load status. - Show save/load
+times where available. - Shortcuts must lead to working pages. - No fake
+analytics or activity logs.
+
+9.2 Tool management - Search, category filter, status filter, sorting,
+and reset. - Add, edit, preview/open, and safe delete. - Duplicate only
+if duplicate logic is correct. - Publish/unpublish only if the schema
+supports the state. - Validate required fields, unique IDs, section
+references, and paths. - Keep unrelated fields when editing. - Do not
+render dead action buttons.
+
+9.3 Form behavior - Use full-page views or dedicated sections, not modal
+popups. - Show required fields and inline errors. - Preserve entered
+data after validation failure. - Warn before leaving with unsaved
+changes. - Do not silently discard changes.
+
+9.4 Section management - Add/edit sections. - Validate unique IDs and
+required names. - Show tool counts. - Protect sections containing
+assigned tools. - Support safe reassignment before deletion. - Keep the
+public listing consistent.
+
+9.5 Site settings - Load, validate, and save supported settings. - State
+whether a setting affects only the current browser or the exported
+public manifest. - Keep contact details consistent across settings,
+footer, and contact page. - Use mailto links when appropriate. - Do not
+pretend a static contact form sends email.
+
+======================================================================
+10. DRAFT, EXPORT, PUBLISH, AND DEPLOYMENT STATES
+======================================================================
+
+Clearly separate: 1. Hosted manifest: JSON served by the website. 2.
+Local draft: changes stored in this browser. 3. Exported manifest:
+downloaded JSON file. 4. Deployed manifest: version uploaded to the host
+and verified.
+
+10.1 Local draft - Use a versioned, namespaced localStorage key. -
+Validate stored drafts before restoring. - Handle corrupt/unavailable
+storage. - Preserve the last valid manifest. - Show unsaved changes and
+saved timestamp. - Provide explicit Save Draft and Discard Draft. - Do
+not silently restore stale drafts over newer hosted data. - Detect
+conflicts where practical. - Provide deliberate recovery.
+
+10.2 Publish workflow - Provide a dedicated Publish Changes page. -
+Summarize pending changes. - Validate the full manifest. - Identify
+invalid IDs, missing sections, and missing tool paths where checkable. -
+Export valid JSON. - Give exact hosting destination:
+htdocs/data/tools.json. - Explain upload/replace using InfinityFree File
+Manager or FTP. - Provide a verification action or manual verification
+instructions. - Use honest states: Local Draft, Ready to Export,
+Awaiting Upload, Verified Deployed Version. - Never claim that local
+storage writes to the server.
+
+A static browser app cannot overwrite InfinityFree server files without
+a supported server-side or external publishing mechanism. Do not invent
+one.
+
+======================================================================
+11. IMPORT, EXPORT, BACKUP, AND RESTORE
+======================================================================
+
+Export: - Export valid UTF-8 JSON. - Use a meaningful filename. -
+Preserve all supported fields. - Block export when required validation
+fails. - Do not export credentials or secrets.
+
+Import: - Select a JSON file. - Parse and validate before modifying
+current state. - Reject malformed JSON and incompatible schemas. -
+Detect duplicate IDs and missing section references. - Show errors and a
+summary before replacement. - Preserve a recoverable backup. - Do not
+alter current data if validation fails. - Prevent accidental loss of
+local drafts.
+
+Backup/restore: - Download backup. - Restore valid backup. - Clearly
+distinguish restore, merge, import, and replace. - Never silently
+destroy current data.
+
+======================================================================
+12. ACCESSIBILITY AND UX
+======================================================================
+
+Audit public pages, admin pages, and tools for: - Missing labels -
+Buttons without accessible names - Missing keyboard focus indicators -
+Incorrect heading hierarchy - Insufficient contrast - Missing
+appropriate alt text - Duplicate IDs - Missing aria-live status
+messages - Inaccessible navigation - Small touch targets - Mobile
+overflow - Unclear validation feedback
+
+Use semantic HTML and native form validation where suitable. Use ARIA
+only where it adds useful semantics. Support keyboard operation and
+reduced motion.
+
+======================================================================
+13. METADATA AND SEO
+======================================================================
+
+For each actual page: - Unique meaningful title. - Appropriate meta
+description. - Character encoding. - Viewport metadata. - Canonical URL
+only when the real production domain is known. - Open Graph metadata
+where appropriate. - Valid internal links. - Accurate breadcrumbs.
+
+Do not invent production domains or fake canonical URLs. Template
+metadata must not misrepresent an unfinished template as a real tool.
+
+======================================================================
+14. CACHE AND ASSET VERSIONING
+======================================================================
+
+-   Inspect all CSS and JavaScript references.
+-   Use one consistent asset versioning strategy.
+-   Remove contradictory or stale version parameters.
+-   Confirm modified files are referenced by the actual HTML.
+-   Do not add cache-busting to every URL without reason.
+-   Verify .htaccess support instead of assuming.
+-   Provide cache troubleshooting steps for deployment.
+-   Prevent stale manifest, layout, or admin scripts from being silently
+    used.
+
+======================================================================
+15. SECURITY AND PRIVACY
+======================================================================
+
+Audit: - Hardcoded passwords - Credentials in JS or JSON - Sensitive
+localStorage values - Unsafe innerHTML usage - Imported JSON
+validation - Path traversal - Dangerous URL schemes - Unnecessary
+third-party scripts - Exposure of admin-only controls - Unsafe new-tab
+links - Misleading authentication claims
+
+Use textContent or safe DOM construction for untrusted content. Reject
+path traversal and unintended external paths. Use rel=“noopener
+noreferrer” for suitable new-tab links.
+
+A client-side login is not secure server-side authentication and cannot
+protect public static admin files from a determined visitor. Do not
+claim production-grade authentication. Do not add a backend to solve
+this.
+
+Image privacy: - Image Resizer processing must remain local to the
+browser. - Do not upload images to a remote service. - Do not transmit
+image bytes to analytics or third-party services. - Document any remote
+library dependency honestly.
+
+======================================================================
+16. ERROR HANDLING AND DIAGNOSTICS
+======================================================================
+
+Handle: - Manifest load failures - Invalid JSON - Local storage
+failures - Import/export errors - Missing tool files - Invalid section
+references - Broken links - Invalid form data - Unsaved changes -
+Clipboard failures - Canvas failures - Unsupported image formats - Image
+decode failures - Excessive image dimensions - Deployment verification
+failures
+
+Every error should explain what failed, likely reasons, and the next
+action. Use inline status messages instead of popup dialogs. Do not
+expose secrets or raw stack traces to visitors. Do not swallow errors
+silently.
+
+======================================================================
+17. TESTING AND QUALITY ASSURANCE
+======================================================================
+
+17.1 Static checks - JavaScript syntax - JSON parsing - HTML
+parsing/validation - CSS validation where available - Duplicate HTML
+IDs - Duplicate tool and section IDs - Broken internal links - Missing
+assets - Manifest/file consistency - Manifest/section consistency -
+Admin navigation destinations - Dead buttons, placeholders, TODOs -
+Asset version consistency
+
+17.2 Functional checks - Root and nested page loading - Shared
+header/footer - Search and combined filters - Reset filters - Tool
+navigation - Add/edit tool - Draft save/recovery/discard - Invalid form
+handling - Duplicate ID rejection - Section management - Valid and
+invalid import - Export - Backup/restore - Settings save - Publish
+validation - Deployment verification - Clipboard success/failure - Image
+Resizer format/dimension/quality behavior - Missing-file behavior -
+Mobile navigation
+
+17.3 Browser testing When browser automation is available: - Test
+desktop and mobile viewports. - Click primary actions. - Inspect console
+and network errors. - Test forms and keyboard navigation. - Verify root
+and nested URLs. - Test the Image Resizer with representative image
+files.
+
+If a test cannot be run, mark it NOT TESTED. Never invent passing
+results. Static checks do not prove live hosting works.
+
+======================================================================
+18. PERFORMANCE AND MAINTAINABILITY
+======================================================================
+
+-   Keep scripts focused and readable.
+-   Avoid unnecessary dependencies.
+-   Avoid duplicate initialization.
+-   Use event delegation where useful.
+-   Clean up object URLs, timers, and listeners.
+-   Avoid memory leaks.
+-   Avoid performance-harming animations.
+-   Keep shared styles and behavior consistent.
+-   Use descriptive names and comments for non-obvious logic.
+-   Do not add a build requirement.
+-   Guard against huge canvas allocations and memory exhaustion in image
+    processing.
+
+======================================================================
+19. REQUIRED DOCUMENTATION AND DELIVERABLES
+======================================================================
+
+For a full audit/fix release, provide: 1. Complete ZIP:
+toolverse-audited-fixed.zip 2. AUDIT-REPORT.md 3. QA-REPORT.md 4.
+DEPLOYMENT-GUIDE.md 5. CHANGELOG.md 6. Validated data/tools.json 7. All
+modified HTML/CSS/JavaScript files 8. Tool pages, components, and assets
+9. This complete PRD in TXT format
+
+Audit report fields: - Issue ID - Severity - Affected file - Root
+cause - User impact - Fix - Verification method
+
+QA report fields: - Test - Expected result - Actual result -
+Pass/fail/not-tested - Test method - Remaining limitation
+
+Deployment guide: - Upload directory - File replacement - Manifest
+publishing - Cache troubleshooting - Smoke tests - Rollback procedure
+
+======================================================================
+20. CHANGE MANAGEMENT
+======================================================================
+
+Before changes: - Inspect existing behavior. - Record features. -
+Identify root causes. - Back up original files.
+
+During changes: - Make focused changes. - Preserve working
+functionality. - Avoid unrelated rewrites. - Update affected
+references. - Keep manifest and documentation consistent.
+
+After changes: - Rerun tests. - Fix regressions. - Extract final ZIP
+into a clean directory. - Repeat validation. - Report untested behavior
+and limitations.
+
+Do not remove a feature because it is difficult to repair. Do not
+replace real functionality with placeholders.
+
+======================================================================
+21. ACCEPTANCE CRITERIA
+======================================================================
+
+The project is accepted only when: - Actual source files have been
+inspected. - Root and nested paths work. - Shared components handle
+failure. - Registry matches actual tool files. - Public search and
+filters work. - Existing tools retain intended functionality. - Admin
+controls perform advertised actions. - Add/edit workflows do not depend
+on popup dialogs. - Draft, export, and deployed states are distinct. -
+Invalid imports do not corrupt current data. - Tool and section
+references are valid. - Image Resizer validates dimensions, exports
+correct formats, and handles failures. - Image processing stays
+client-side. - Website is responsive and accessible. - No prohibited
+backend technology is introduced. - Static checks pass or exceptions are
+documented. - Browser tests are reported honestly. - Final ZIP contains
+the complete runnable project. - Deployment limitations are explained.
+
+======================================================================
+22. EXECUTION WORKFLOW
+======================================================================
+
+1.  Extract and inventory the supplied project.
+2.  Inspect source files.
+3.  Audit paths, manifest, metadata, UI, accessibility, caching,
+    security, and tool functionality.
+4.  Identify root causes and prioritize issues by severity.
+5.  Implement fixes.
+6.  Redesign admin workflows where required.
+7.  Test each changed tool and page.
+8.  Run static and functional validation.
+9.  Fix regressions and retest.
+10. Extract final ZIP into a clean directory.
+11. Repeat applicable checks.
+12. Generate reports and deployment instructions.
+13. Deliver the complete ZIP and explain remaining limitations.
+
+Do not stop at recommendations or code snippets. Modify the actual
+project when files are supplied. Do not claim success for any test or
+deployment that was not performed.
+
+END OF TOOLVERSE PRD
